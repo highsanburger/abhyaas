@@ -2,24 +2,45 @@
 -- λ> myLast [1,2,3,4] ~~~> 4  
 -- λ> myLast ['x','y','z'] ~~~> 'z'
 
+myLast :: [a] -> a
+myLast (last:[]) = last
+myLast (_:xs) = myLast xs
+
+
 -- 2. Find the last-but-one (or second-last) element of a list.
 -- λ> myButLast [1,2,3,4] ~~~> 3
 -- λ> myButLast ['a'..'z'] ~~~> 'y'
+
+myButLast :: [a] -> a
+myButLast (blast:_:[]) = blast
+myButLast (_:xs) = myButLast xs
 
 
 -- 3. Find the K'th element of a list.
 -- λ> elementAt [1,2,3] 2 ~~~> 2
 -- λ> elementAt "haskell" 5 ~~~> 'e'
 
+elementAt :: [a] -> Int -> a
+elementAt (a:_) 1 = a
+elementAt (_:xs) n = elementAt xs (n-1)
+
 
 -- 4. Find the number of elements in a list.
 -- λ> myLength [123, 456, 789] ~~~> 3
 -- λ> myLength "Hello, world!" ~~~> 13
 
+myLength :: [a] -> Int
+myLength [] = 0
+myLength (_:as) = 1 + myLength as
+
 
 -- 5. Reverse a list.
 -- λ> myReverse "A man, a plan, a canal, panama!" ~~~> "!amanap ,lanac a ,nalp a ,nam A"
 -- λ> myReverse [1,2,3,4] ~~~> [4,3,2,1]
+
+myReverse :: [a] -> [a]
+myReverse [] = []
+myReverse (a:as) = myReverse as ++ [a]
 
 
 -- 6. Find out whether a list is a palindrome.

@@ -48,6 +48,8 @@ myReverse (a:as) = myReverse as ++ [a]
 -- λ> isPalindrome "madamimadam" ~~~> True
 -- λ> isPalindrome [1,2,4,8,16,8,4,2,1] ~~~> True
 
+isPalindrome :: Eq a => [a] -> Bool
+isPalindrome [] = True 
 
 -- 7. Flatten a nested list structure.
 -- data NestedList a = Elem a | List [NestedList a]

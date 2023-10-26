@@ -23,6 +23,6 @@ parseInputB input = sum $ map ribbon $ map parseDim $ words input
 
 
 main = do
-    input <- readFile "input2.txt"
+    input <- readFile "02-input.txt"
     print $ parseInputA input
     print $ parseInputB input

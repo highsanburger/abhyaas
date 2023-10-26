@@ -17,6 +17,6 @@ fork (a:b:s) = ((a:at),(b:bt))
              where (at,bt) = fork s  -- works only for even length
 
 main = do
-    input <- readFile "input3.txt"
+    input <- readFile "03-input.txt"
     print $ length $ rmdups $ path origin input
     print $ length $ rmdups $ path origin (fst $ fork input) ++ path origin (snd $ fork input)

@@ -50,25 +50,43 @@ myReverse (a:as) = myReverse as ++ [a]
 
 isPalindrome :: Eq a => [a] -> Bool
 isPalindrome [] = True 
+isPalindrome (a:[]) = True
+isPalindrome as = (head as == last as) && (isPalindrome $ tail $ init as)
+
 
 -- 7. Flatten a nested list structure.
--- data NestedList a = Elem a | List [NestedList a]
+data NestedList a = Elem a | List [NestedList a]
 -- λ> flatten (Elem 5) ~~~> [5]
 -- λ> flatten (List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]) ~~~> [1,2,3,4,5]
 -- λ> flatten (List []) ~~~> []
+
+-- flatten :: NestedList a -> [a]
+-- flatten (Elem x) = [x]
+-- flatten (List []) = []
+-- flatten (List (x:xs)) = flatten x ++ flatten xs
 
 
 -- 8. Eliminate consecutive duplicates of list elements.
 -- λ> compress "aaaabccaadeeee" ~~~> "abcade"
 
+compress :: String -> String 
+compress (c:[]) = [c]
+compress (c:cs) | c == head cs = compress cs
+                | otherwise = [c] ++ compress cs
+
 
 -- 9. Pack consecutive duplicates of list elements into sublists.
 -- λ> pack ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e'] ~~~> ["aaaa","b","cc","aa","d","eeee"]
 
+pack ::  Eq a => [a] -> [[a]]
+pack [] = []
+pack s = (takeWhile (== (head s)) s) : (pack (dropWhile (== (head s)) s))
 
 -- 10. Run-length encoding of a list.
 -- λ> encode "aaaabccaadeeee" ~~~> [(4,'a'),(1,'b'),(2,'c'),(2,'a'),(1,'d'),(4,'e')]
 
+encode :: Eq a => [a] -> [(Int, a)]
+encode s = map (\x -> (length x, head x)) $ pack s
 
 -- 11. Modified run-length encoding.
 -- λ> encodeModified "aaaabccaadeeee" ~~~> [Multiple 4 'a',Single 'b',Multiple 2 'c', Multiple 2 'a',Single 'd',Multiple 4 'e']

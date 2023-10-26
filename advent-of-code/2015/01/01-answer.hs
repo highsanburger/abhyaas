@@ -13,6 +13,6 @@ basement str = elemIndex (-1) $ scanl (\a b -> a + celate b) 0 str
 
 
 main = do
-    input <- readFile "input1.txt"
+    input <- readFile "01-input.txt"
     print $ whatFloor input
     print $ basement input

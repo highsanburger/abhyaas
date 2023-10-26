@@ -11,5 +11,5 @@ newtype To = String
 data Path = From To Int
 
 main = do
-    input <- readFile "input9.txt"
+    input <- readFile "09-input.txt"
     print $ input

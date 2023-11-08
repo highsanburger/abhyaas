@@ -1,3 +1,5 @@
+import Data.List
+
 -- 1. Find the last element of a list.
 -- λ> myLast [1,2,3,4] ~~~> 4  
 -- λ> myLast ['x','y','z'] ~~~> 'z'
@@ -60,10 +62,8 @@ data NestedList a = Elem a | List [NestedList a]
 -- λ> flatten (List [Elem 1, List [Elem 2, List [Elem 3, Elem 4], Elem 5]]) ~~~> [1,2,3,4,5]
 -- λ> flatten (List []) ~~~> []
 
--- flatten :: NestedList a -> [a]
--- flatten (Elem x) = [x]
--- flatten (List []) = []
--- flatten (List (x:xs)) = flatten x ++ flatten xs
+flatten :: [NestedList a] -> [a]
+flatten = undefined
 
 
 -- 8. Eliminate consecutive duplicates of list elements.
@@ -82,21 +82,37 @@ pack ::  Eq a => [a] -> [[a]]
 pack [] = []
 pack s = (takeWhile (== (head s)) s) : (pack (dropWhile (== (head s)) s))
 
+
 -- 10. Run-length encoding of a list.
 -- λ> encode "aaaabccaadeeee" ~~~> [(4,'a'),(1,'b'),(2,'c'),(2,'a'),(1,'d'),(4,'e')]
 
 encode :: Eq a => [a] -> [(Int, a)]
 encode s = map (\x -> (length x, head x)) $ pack s
 
+
 -- 11. Modified run-length encoding.
 -- λ> encodeModified "aaaabccaadeeee" ~~~> [Multiple 4 'a',Single 'b',Multiple 2 'c', Multiple 2 'a',Single 'd',Multiple 4 'e']
 
+data Code a = Single a | Multiple Int a deriving Show
+
+toCode :: (Int,a) -> Code a
+toCode (1,x) = Single x
+toCode (n,x) = Multiple n x
+
+encodeModified :: Eq a => [a] -> [Code a]
+encodeModified s = map (toCode) $ encode s
+
 
 -- 12. Decode a run-length encoded list.
--- λ> decodeModified 
---        [Multiple 4 'a',Single 'b',Multiple 2 'c',
---         Multiple 2 'a',Single 'd',Multiple 4 'e']
+-- λ> decodeModified [Multiple 4 'a',Single 'b',Multiple 2 'c', Multiple 2 'a',Single 'd',Multiple 4 'e']
 --   ~~~> "aaaabccaadeeee"
+
+fromCode :: Code a -> [a] 
+fromCode (Single x) = [x]
+fromCode (Multiple n x) = replicate n x
+
+decodeModified :: [Code a] -> [a]
+decodeModified s = foldr (\x y -> fromCode x ++ y) [] s
 
 
 -- 13. Run-length encoding of a list (direct solution).
@@ -105,42 +121,86 @@ encode s = map (\x -> (length x, head x)) $ pack s
 -- [Multiple 4 'a',Single 'b',Multiple 2 'c',
 --  Multiple 2 'a',Single 'd',Multiple 4 'e']
 
+-- TODO
 
+encodeDirect :: Eq a => [a] -> [ListItem a]
+encodeDirect []     = []
+encodeDirect (x:xs) = let (group, rest) = span (==x) xs in 
+    convertIfSingle (Multiple (1 + length group) x) : encodeDirect rest
+    where convertIfSingle (Multiple 1 x) = (Single x)
+          otherwise                      = x
 -- 14. Duplicate the elements of a list.
 -- λ> dupli [1, 2, 3]~~~> [1,1,2,2,3,3]
+
+dupli :: [a] -> [a]
+dupli [] = []
+dupli (a:as) = [a,a] ++ dupli as
 
 
 -- 15. Replicate the elements of a list a given number of times.
 -- λ> repli "abc" 3 ~~~> "aaabbbccc"
 
+replic :: a -> Int -> [a]
+replic _ 0 = []
+replic a 1 = [a]
+replic a n = (a:replic a (n-1))
+
+repli :: [a] -> Int -> [a]
+repli as n = concat $ map (\x -> replic x n) as
 
 -- 16. Drop every N'th element from a list.
 -- λ> dropEvery "abcdefghik" 3 ~~~> "abdeghk"
+
+dropEvery :: [a] -> Int -> [a]
+dropEvery s n = map (\(e,i) -> e) $ filter (\(e,i) -> i `mod` n /= 0) $ zip s [1..]
 
 
 -- 17. Split a list into two parts; the length of the first part is given.
 -- λ> split "abcdefghik" 3 ~~~> ("abc", "defghik")
 
+split :: [a] -> Int -> ([a],[a])
+split s n = ( map (\(e,i) -> e) $ takeWhile (\(e,i) -> i < n ) l, map (\(e,i) -> e) $ dropWhile (\(e,i) -> i < n ) l)
+           where l = zip s [0..]
+
 
 -- 18. Extract a slice from a list.
 -- λ> slice ['a','b','c','d','e','f','g','h','i','k'] 3 7 ~~~> "cdefg"
 
+slice :: [a] -> Int -> Int -> [a]
+slice as from to = map (\(e, i) -> e) $ filter (\(e, i) -> from <= i && i <= to) l
+                  where l = zip as [1..]
 
--- 19. Rotate a list N places to the left.
+
+-- 19. rotate a list n places to the left.
 -- λ> rotate ['a','b','c','d','e','f','g','h'] 3 ~~~> "defghabc"
 -- λ> rotate ['a','b','c','d','e','f','g','h'] (-2) ~~~> "ghabcdef"
 
+rotate :: Ord a => [a] -> Int -> [a]
+rotate as n = map ( \(i,e) ->  as !! ( (i + n) `mod` (length as) ) ) $ zip [0..] as
+ 
 
 -- 20. Remove the K'th element from a list.
 -- λ> removeAt 2 "abcd" ~~~> ('b',"acd")
+
+removeAt :: Int -> [a] -> (a,[a])
+removeAt n as = (as !! (n-1) , map (\(e,i) -> e) $ filter (\(e,i) -> i /= n) l)
+               where l = zip as [1..]
 
 
 -- 21. Insert an element at a given position into a list.
 -- λ> insertAt 'X' "abcd" 2  ~~~> "aXbcd"
 
+insertAt :: a -> [a] -> Int -> [a]
+insertAt a as n = fst s ++ [a] ++ snd s
+                 where s = split as (n - 1)
+
 
 -- 22. Create a list containing all integers within a given range.
 -- λ> range 4 9 ~~~> [4,5,6,7,8,9]
+
+range :: Int -> Int -> [Int]
+range n m     |  n == m  =  [n]
+              |  otherwise = (n : range (n + 1) m)
 
 
 -- 23. Extract a given number of randomly selected elements from a list.

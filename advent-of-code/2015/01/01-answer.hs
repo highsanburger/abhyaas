@@ -16,3 +16,4 @@ main = do
     input <- readFile "01-input.txt"
     print $ whatFloor input
     print $ basement input
+

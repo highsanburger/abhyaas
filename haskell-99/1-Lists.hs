@@ -124,11 +124,9 @@ decodeModified s = foldr (\x y -> fromCode x ++ y) [] s
 -- TODO
 
 encodeDirect :: Eq a => [a] -> [ListItem a]
-encodeDirect []     = []
-encodeDirect (x:xs) = let (group, rest) = span (==x) xs in 
-    convertIfSingle (Multiple (1 + length group) x) : encodeDirect rest
-    where convertIfSingle (Multiple 1 x) = (Single x)
-          otherwise                      = x
+encodeDirect = undefined
+
+
 -- 14. Duplicate the elements of a list.
 -- λ> dupli [1, 2, 3]~~~> [1,1,2,2,3,3]
 
